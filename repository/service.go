@@ -10,14 +10,14 @@ import (
 // Service represents a service in the User's organization.
 // Todo: Indices, unique name constraints
 type Service struct {
-	ID             ulid.ULID `gorm:"primaryKey;size:26"`   // ULID as the primary key - size 26 chars
-	Name           string    `gorm:"size:255;not null"`    // Name of the service
-	Description    string    `gorm:"type:text;size:1023"`  // Description about the service
-	UserID         uint      `gorm:"type:bigint;not null"` // ID of user who created the service
-	OrganizationID uint      `gorm:"type:bigint;not null"`
+	ID             ulid.ULID `gorm:"primaryKey;size:26"`  // ULID as the primary key - size 26 chars
+	Name           string    `gorm:"size:255;not null"`   // Name of the service
+	Description    string    `gorm:"type:text;size:1023"` // Description about the service
+	UserID         int       `gorm:"type:int;not null"`   // ID of user who created the service
+	OrganizationID int       `gorm:"type:int;not null"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	DeletedAt      time.Time `gorm:"default null"`
+	DeletedAt      *time.Time `gorm:"default null"`
 	Organization   Organization
 	User           User
 }
@@ -29,12 +29,12 @@ func (s *Service) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 // Creates a Service and inserts into DB
-func CreateService(service Service) (*Service, error) {
-	value := DBInstance.Create(&service)
+func CreateService(service *Service) (*Service, error) {
+	value := DBInstance.Create(service)
 	if value.Error != nil {
 		return nil, value.Error
 	}
-	return &service, nil
+	return service, nil
 }
 
 // Loads all services and returns
