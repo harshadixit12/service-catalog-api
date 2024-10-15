@@ -7,6 +7,7 @@ import (
 
 	"github.com/harshadixit12/service-catalog-api/middleware"
 	"github.com/harshadixit12/service-catalog-api/repository"
+	"github.com/harshadixit12/service-catalog-api/resources"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -15,9 +16,10 @@ import (
 func setupRouter(dbInstance *gorm.DB) *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.AuthMiddleware())
+	r.Use(middleware.ErrorHandlerMiddleware())
 
 	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
+		resources.SendSuccess(c, http.StatusOK, gin.H{"message": "pong"})
 	})
 	return r
 }

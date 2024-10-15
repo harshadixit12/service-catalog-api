@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/oklog/ulid/v2"
+	"gorm.io/gorm"
 )
 
 // Service represents a service in the User's organization.
@@ -22,4 +23,15 @@ type Version struct {
 	Service        Service
 	Organization   Organization
 	User           User
+}
+
+func GetServiceVersions(dbInstance *gorm.DB, version Version) ([]Version, error) {
+	var versions []Version
+	value := dbInstance.Where("Service_ID", version.ServiceID.String()).Find(&versions)
+
+	if value.Error != nil {
+		return nil, value.Error
+	}
+
+	return versions, nil
 }
