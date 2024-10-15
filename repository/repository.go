@@ -12,8 +12,9 @@ var DBInstance *gorm.DB
 // Initializes the database connection - SQLite for the first iteration of development.
 // We will make use of GORM as the ORM.
 func InitDatabase() (*gorm.DB, error) {
+	var err error
 	// Open a connection to the SQLite database file (it will be created if it doesn't exist)
-	DBInstance, err := gorm.Open(sqlite.Open("database.db"), &gorm.Config{})
+	DBInstance, err = gorm.Open(sqlite.Open("database.db"), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to SQLite database: %w", err)
 	}

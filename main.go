@@ -25,6 +25,7 @@ func setupRouter(dbInstance *gorm.DB) *gin.Engine {
 	})
 
 	r.POST("/services", controllers.CreateService)
+	r.POST("/services/:serviceId/versions", controllers.CreateVersion)
 	return r
 }
 
