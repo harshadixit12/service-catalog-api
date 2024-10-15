@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/harshadixit12/service-catalog-api/middleware"
 	"github.com/harshadixit12/service-catalog-api/repository"
 
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,8 @@ import (
 
 func setupRouter(dbInstance *gorm.DB) *gin.Engine {
 	r := gin.Default()
+	r.Use(middleware.AuthMiddleware())
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
