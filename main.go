@@ -12,13 +12,11 @@ import (
 	"github.com/harshadixit12/service-catalog-api/resources"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func setupRouter(dbInstance *gorm.DB) *gin.Engine {
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.AuthMiddleware())
-	//r.Use(middleware.ErrorHandlerMiddleware())
 
 	r.GET("/ping", func(c *gin.Context) {
 		resources.SendSuccess(c, http.StatusOK, gin.H{"message": "pong"}, nil)
@@ -33,15 +31,16 @@ func setupRouter(dbInstance *gorm.DB) *gin.Engine {
 }
 
 func main() {
+	// Set timezone as UTC so we store timestamps in UTC in the database using gorm
 	utcTime, _ := time.LoadLocation("UTC")
 
-	dbInstance, err := repository.InitDatabase()
+	_, err := repository.InitDatabase()
 	if err != nil {
 		log.Fatalf("Error initializing database: %v", err)
 	}
 	fmt.Printf("SQLite database initialized successfully at: %s", utcTime.String())
 
-	router := setupRouter(dbInstance)
+	router := setupRouter()
 
 	router.Run("localhost:8080")
 }

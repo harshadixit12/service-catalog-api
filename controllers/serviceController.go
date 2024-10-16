@@ -119,7 +119,6 @@ func GetServiceByID(c *gin.Context) {
 }
 
 func CreateService(c *gin.Context) {
-	// Load user and organization IDs from auth
 	userID, userExists := c.Get("userID")
 	orgID, orgExists := c.Get("organizationID")
 	fmt.Printf("%s %s", userID, orgID)
@@ -130,7 +129,6 @@ func CreateService(c *gin.Context) {
 
 	var serviceRequestInstance resources.ServiceRequestBody
 
-	// Bind the JSON request body to the service struct
 	if err := c.ShouldBindJSON(&serviceRequestInstance); err != nil {
 		resources.SendError(c, http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

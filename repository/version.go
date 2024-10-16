@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service represents a service in the User's organization.
-// Unique name constraint might be useful for <Name, ServiceId>
+// Version represents a version of the service in the User's organization.
+// Unique name constraint might be useful for <Name, ServiceId> - so no two versions have same name
 type Version struct {
 	ID             string     `gorm:"primaryKey;type:char(36)"`
 	Name           string     `gorm:"type:varchar(256);not null"`
@@ -54,6 +54,7 @@ func CreateVersion(version *Version) (*Version, error) {
 	return version, nil
 }
 
+// Loads all non deleted versions for a given service, and supports pagination
 func GetServiceVersions(version Version, pageNumber int, pageSize int) ([]Version, error) {
 	var versions []Version
 	tx := DBInstance.Session(&gorm.Session{})

@@ -1,6 +1,6 @@
 # Service Catalog API
 This repository contains an implementation of an API for storing and retrieving services and version - a catalog of services.  
-It makes use of Gin HTTP framework (https://gin-gonic.com/docs/), and GORM (https://gorm.io/docs/) as the ORM, and makes use of SQLite (https://pkg.go.dev/github.com/mattn/go-sqlite3) for storage.  
+It makes use of [Gin HTTP framework](https://gin-gonic.com/docs/), and [GORM](https://gorm.io/docs/) as the ORM, and makes use of [SQLite](https://pkg.go.dev/github.com/mattn/go-sqlite3) for storage.  
 
 Why Gin?
 The framework is performant, and has inbuilt features like middlewares which would take additional effort to implement otherwise.
@@ -11,25 +11,26 @@ It abstracts out the SQL, and makes writing queries easier, and also has drivers
 Why SQLite?
 Easy to set up and use for development, and to mock in tests as well.
 
-# Terminology
-1. Organization  
-A company that is a customer of our API, and has multiple users belonging to it.
-
-2. User  
-A human user, who belongs to an organization, and can access the services in the organization.
-
-3. Service  
-Services belongs to an organisation which is our customer. Each service has a unique ID, name, description, and versions.
-4. Version  
-A service can have multiple versions, one or more being active at the same time. Each version has a name, and belongs to one service.
-
 ## Assumptions
 This has been built on the following assumptions - 
-1. The service will be read heavy
+1. The API will be read heavy
 2. Service for managing users and organizations (ie customers that use the service catalog API) will be built and integrated later. Therefore, we are okay with mocking the user and organization for our implementation
 3. Middleware for authorization / authentication will be implemented and integrated later
 4. Access control (ie read / write access for certain users) will be built and implemented later
 5. We have not set up a scalable RDS, and are okay with a lightweight DB like SQLite for this implementation
+
+
+## Terminology  
+1. Organization  
+A company that is a customer of our API, and has multiple users belonging to it.  
+
+2. User  
+A human user, who belongs to an organization, and can access the services in the organization.  
+
+3. Service  
+Services belongs to an organisation which is our customer. Each service has a unique ID, name, description, and versions.  
+4. Version  
+A service can have multiple versions, one or more being active at the same time. Each version has a name, and belongs to one service.  
 
 ## Project Structure
 ```
@@ -117,7 +118,7 @@ There are foreign key relationships defined to ensure data consistency.
 
 There is a 1:N relationship between services and versions. However, I have made use of denormalisation so version count can be stored on services table, to avoid frequent join operations.
 
-Services and Versions are identified by a Unique ID - generated using ulid package (https://pkg.go.dev/github.com/oklog/ulid/v2) - which is URL safe. We are using a column size of 36, even though ulid is of 26 characters to have a two way door supporting uuids in future.
+Services and Versions are identified by a Unique ID - generated using [ulid package](https://pkg.go.dev/github.com/oklog/ulid/v2) - which is URL safe. We are using a column size of 36, even though ulid is of 26 characters to have a two way door supporting uuids in future.
 
 The entities support soft deletion, by marking the `deleted_at` field.
 
@@ -126,6 +127,7 @@ All input users give us, is validated in the controller layer, for example, the 
 
 
 ## How to use
+Ensure you have `go 1.23.1` available.  
 To start the server, run the following command  
 ```go run main.go```
 
@@ -133,10 +135,19 @@ This sets up the database, inserts relevant mock entries, and starts the service
 
 To verify the service started successfully, we can make a GET request to `http://localhost:8080/ping`, and it should return a HTTP 200 OK response with `pong` in the response body.
 
+There is also an [insomnia collection](./service_catalog_insomnia_collection.json) which can be referred to, to make requests to the API
+
+
 ## Testing
+There are end to end tests for the service, implemented using [assert package](https://pkg.go.dev/github.com/stretchr/testify/assert) - for ease of assertions, and to avoid multiple if-else statements.  
+
+These tests cover the happy path - initiating DB, inserting required items into DB, making request to service, asserting on the response.  
+
+To run the tests, use the following command  
+`go test`  
 
 
-## Potential improvements in design, and otherwise
+## Potential improvements in design, tests, and management
 We should use a Database Management System - like MySQL or Postgres.
 
 ### Error handling
@@ -151,3 +162,14 @@ However, this can be further improved upon by using something like HTTP problem 
 
 #### Pagination
 For larger data sets, offset based pagination runs into performance issues with high offset values (https://www.pingcap.com/article/limit-offset-pagination-vs-cursor-pagination-in-mysql/), and cursor based pagination would be preffered - although slightly more complex to implement.
+
+### Tests  
+- Unit tests can be added for each package separately
+- End to end tests can cover errors, validation of input, etc
+
+### Management of API
+We should have visibility into how our API performs, this can be achieved by APM tools, to monitor the following - 
+1. Throughput  
+2. Error rate  
+3. Resources consumed  
+4. Distributed tracing of requests   

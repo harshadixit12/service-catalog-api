@@ -29,9 +29,8 @@ func CreateVersion(c *gin.Context) {
 		return
 	}
 
-	var versionRequestInstance resources.VersionRequest
+	var versionRequestInstance resources.VersionRequestBody
 
-	// Bind the JSON request body to the service struct
 	if err := c.ShouldBindJSON(&versionRequestInstance); err != nil {
 		resources.SendError(c, http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
