@@ -99,6 +99,28 @@ There are foreign key relationships defined to ensure data consistency.
 
 There is a 1:N relationship between services and versions. However, I have made use of denormalisation so version count can be stored on services table, to avoid frequent join operations.
 
+We want to store Services, and their Versions in our database. By extension, we also want to store the organisations these services belong to, and the users that belong to those organisations.
+These have relationships - 1:N between services and versions, as well as 1:N between the organisations<>users, organisations<>services, etc as well.  
+
+Besides, since we would be storing business critical systems, we'd want high consistency, transaction support, and support for high read throuput. 
+
+So, we will use Relational Databases.  
+Ideally, MySQL or PostGres - but for simplicity, I have chosen SQLite.
+
+We have 4 Tables:  
+1. organizations  
+2. users  
+3. services  
+4. versions  
+
+There are foreign key relationships defined to ensure data consistency.
+
+There is a 1:N relationship between services and versions. However, I have made use of denormalisation so version count can be stored on services table, to avoid frequent join operations.
+
+Services and Versions are identified by a Unique ID - generated using ulid package (https://pkg.go.dev/github.com/oklog/ulid/v2) - which is URL safe. We are using a column size of 36, even though ulid is of 26 characters to have a two way door supporting uuids in future.
+
+The entities support soft deletion, by marking the `deleted_at` field.
+
 ### Validations
 All input users give us, is validated in the controller layer, for example, the query parameters for pagination, sorting, etc.
 
