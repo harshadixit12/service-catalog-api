@@ -26,5 +26,16 @@ func InitDatabase() (*gorm.DB, error) {
 		return nil, err
 	}
 
+	// Create a dummy organisation and user, and ignore errors if already present
+	orgResult := DBInstance.Create(&Organization{Name: "Poppy Corp."})
+	if orgResult.Error != nil {
+		fmt.Printf("Error creating org: %v\n", orgResult.Error)
+	}
+
+	userResult := DBInstance.Create(&User{Name: "Poppy Corp.", Email: "user_1@poppycorp.com", OrganizationID: 1})
+	if userResult.Error != nil {
+		fmt.Printf("Error creating user: %v\n", userResult.Error)
+	}
+
 	return DBInstance, nil
 }

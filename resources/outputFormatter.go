@@ -5,8 +5,9 @@ import (
 )
 
 // Sends a standard response, containing the result for request.
-func SendSuccess(c *gin.Context, status int, data interface{}) {
+func SendSuccess(c *gin.Context, status int, data interface{}, meta interface{}) {
 	c.JSON(status, Response{
+		Meta:  meta,
 		Data:  data,
 		Error: nil,
 	})

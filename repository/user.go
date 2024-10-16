@@ -5,14 +5,14 @@ import (
 )
 
 // User represents a customer who belongs to an Organization.
-// Todo: Indices
 type User struct {
-	ID             int    `gorm:"unique;primaryKey;autoIncrement"`
-	Name           string `gorm:"size:255;not null"`
-	Email          string `gorm:"size:512;not null"`
-	OrganizationID uint   `gorm:"type:bigint;not null"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	ID             int        `gorm:"unique;primaryKey;autoIncrement"`
+	Name           string     `gorm:"type:varchar(256);not null"`
+	Email          string     `gorm:"type:varchar(512);not null"`
+	OrganizationID int        `gorm:"type:int;not null"`
+	CreatedAt      time.Time  `gorm:"default:CURRENT_TIMESTAMP"`
+	UpdatedAt      time.Time  `gorm:"default:CURRENT_TIMESTAMP"`
 	DeletedAt      *time.Time `gorm:"default null"`
-	Organization   Organization
+	Services       []Service  `gorm:"foreignKey:UserID"`
+	Versions       []Version  `gorm:"foreignKey:UserID"`
 }
