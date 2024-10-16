@@ -32,7 +32,8 @@ func (s *Service) BeforeCreate(tx *gorm.DB) (err error) {
 
 // Creates a Service and inserts into DB
 func CreateService(service *Service) (*Service, error) {
-	value := DBInstance.Create(service)
+	tx := DBInstance.Session(&gorm.Session{})
+	value := tx.Create(service)
 	if value.Error != nil {
 		return nil, value.Error
 	}

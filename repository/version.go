@@ -12,7 +12,7 @@ import (
 type Version struct {
 	ID             string     `gorm:"primaryKey;type:char(36)"`
 	Name           string     `gorm:"type:varchar(256);not null"`
-	ServiceID      ulid.ULID  `gorm:"type:char(36);not null"`
+	ServiceID      string     `gorm:"type:char(36);not null"`
 	UserID         int        `gorm:"type:int;not null"`
 	OrganizationID int        `gorm:"type:int;not null"`
 	CreatedAt      time.Time  `gorm:"default:CURRENT_TIMESTAMP"`
@@ -37,7 +37,7 @@ func CreateVersion(version *Version) (*Version, error) {
 
 		// Increment the version_count in the service
 		if err := tx.Model(&Service{}).
-			Where("id = ?", version.ServiceID.String()).
+			Where("id = ?", version.ServiceID).
 			Update("version_count", gorm.Expr("version_count + ?", 1)).
 			Error; err != nil {
 			// If error, return to rollback
@@ -58,7 +58,7 @@ func GetServiceVersions(version Version, pageNumber int, pageSize int) ([]Versio
 	var versions []Version
 	tx := DBInstance.Session(&gorm.Session{})
 
-	value := tx.Where("deleted_at IS NULL").Offset((pageNumber - 1) * pageSize).Limit(pageSize).Find(&versions)
+	value := tx.Where("service_id = ?", version.ServiceID).Where("deleted_at IS NULL").Offset((pageNumber - 1) * pageSize).Limit(pageSize).Find(&versions)
 
 	if value.Error != nil {
 		return nil, value.Error

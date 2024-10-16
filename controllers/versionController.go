@@ -25,7 +25,7 @@ func CreateVersion(c *gin.Context) {
 
 	serviceULID, err := ulid.Parse(serviceId)
 	if err != nil {
-		resources.SendError(c, http.StatusBadRequest, gin.H{"message": err.Error()})
+		resources.SendError(c, http.StatusBadRequest, gin.H{"message": "The service ID is invalid."})
 		return
 	}
 
@@ -37,7 +37,7 @@ func CreateVersion(c *gin.Context) {
 		return
 	}
 
-	version := repository.Version{Name: versionRequestInstance.Name, ServiceID: serviceULID, UserID: 1, OrganizationID: 1}
+	version := repository.Version{Name: versionRequestInstance.Name, ServiceID: serviceULID.String(), UserID: userID.(int), OrganizationID: orgID.(int)}
 
 	createdVersion, err := repository.CreateVersion(&version)
 
@@ -53,16 +53,21 @@ func CreateVersion(c *gin.Context) {
 func GetServiceVersions(c *gin.Context) {
 	serviceULID, err := ulid.Parse(c.Param("serviceId"))
 
+	if err != nil {
+		resources.SendError(c, http.StatusBadRequest, gin.H{"message": "The service ID is invalid."})
+		return
+	}
+
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size_limit", "25"))
 	pageNumber, _ := strconv.Atoi(c.DefaultQuery("page_number", "1"))
 
 	if pageNumber < 1 {
-		resources.SendError(c, http.StatusBadRequest, "Invalid page_number - must be greater than 1.")
+		resources.SendError(c, http.StatusBadRequest, gin.H{"message": "Invalid page_number - must be greater than 1."})
 		return
 	}
 
 	if pageSize < 1 || pageSize > 100 {
-		resources.SendError(c, http.StatusBadRequest, "Invalid page_size_limit - must be greater than 1 and less than 101.")
+		resources.SendError(c, http.StatusBadRequest, gin.H{"message": "Invalid page_size_limit - must be greater than 1 and less than 101."})
 		return
 	}
 
@@ -71,7 +76,7 @@ func GetServiceVersions(c *gin.Context) {
 		return
 	}
 
-	version := repository.Version{ServiceID: serviceULID}
+	version := repository.Version{ServiceID: serviceULID.String()}
 	versions, err := repository.GetServiceVersions(version, pageNumber, pageSize)
 
 	if err != nil {
