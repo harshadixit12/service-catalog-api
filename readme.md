@@ -79,7 +79,7 @@ This is the data storage layer, and has functions to initialise the database and
 
 ## Implementation details
 ### Database models and relationships
-![alt text](<Screenshot 2024-10-16 at 10.02.06.png>)
+<img width="1072" alt="Screenshot 2024-10-16 at 12 43 45" src="https://github.com/user-attachments/assets/9efba4bf-d3d5-4581-8862-5cce075fae8c">
 
 We want to store Services, and their Versions in our database. By extension, we also want to store the organisations these services belong to, and the users that belong to those organisations.
 These have relationships - 1:N between services and versions, as well as 1:N between the organisations<>users, organisations<>services, etc as well.  
