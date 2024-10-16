@@ -2,6 +2,15 @@
 This repository contains an implementation of an API for storing and retrieving services and version - a catalog of services.  
 It makes use of Gin HTTP framework (https://gin-gonic.com/docs/), and GORM (https://gorm.io/docs/) as the ORM, and makes use of SQLite (https://pkg.go.dev/github.com/mattn/go-sqlite3) for storage.  
 
+Why Gin?
+The framework is performant, and has inbuilt features like middlewares which would take additional effort to implement otherwise.
+
+Why GORM?
+It abstracts out the SQL, and makes writing queries easier, and also has drivers to support multiple databases.
+
+Why SQLite?
+Easy to set up and use for development, and to mock in tests as well.
+
 # Terminology
 1. Organization  
 A company that is a customer of our API, and has multiple users belonging to it.
@@ -72,8 +81,26 @@ This is the data storage layer, and has functions to initialise the database and
 ### Database models and relationships
 ![alt text](<Screenshot 2024-10-16 at 10.02.06.png>)
 
-### Validations
+We want to store Services, and their Versions in our database. By extension, we also want to store the organisations these services belong to, and the users that belong to those organisations.
+These have relationships - 1:N between services and versions, as well as 1:N between the organisations<>users, organisations<>services, etc as well.  
 
+Besides, since we would be storing business critical systems, we'd want high consistency, transaction support, and support for high read throuput. 
+
+So, we will use Relational Databases.  
+Ideally, MySQL or PostGres - but for simplicity, I have chosen SQLite.
+
+We have 4 Tables:  
+1. organizations  
+2. users  
+3. services  
+4. versions  
+
+There are foreign key relationships defined to ensure data consistency.
+
+There is a 1:N relationship between services and versions. However, I have made use of denormalisation so version count can be stored on services table, to avoid frequent join operations.
+
+### Validations
+All input users give us, is validated in the controller layer, for example, the query parameters for pagination, sorting, etc.
 
 
 ## How to use
@@ -88,3 +115,17 @@ To verify the service started successfully, we can make a GET request to `http:/
 
 
 ## Potential improvements in design, and otherwise
+We should use a Database Management System - like MySQL or Postgres.
+
+### Error handling
+I have tried to hide internal details of implementation bubbling up to users in error messages by returning generic error messages, unless it is a 4xx - in which case the error message communicates to user what is wrong and how they can fix it.  
+However, this can be further improved upon by using something like HTTP problem details (https://datatracker.ietf.org/doc/html/rfc7807#section-3) - where additional context about the error can be sent to the user.
+
+### API design and implementation
+- The `GET /services` endpoint supports filtering, however, for a user, a "search" operation could be more favorable - to search for services using a part of their name, description etc.
+- More routes could be added to support Update and Delete operations on Service and Version resources.
+- Rate limiting could be added.  
+- We should also have some form of authentication for the API.
+
+#### Pagination
+For larger data sets, offset based pagination runs into performance issues with high offset values (https://www.pingcap.com/article/limit-offset-pagination-vs-cursor-pagination-in-mysql/), and cursor based pagination would be preffered - although slightly more complex to implement.
